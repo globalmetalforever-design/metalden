@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0f1115">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>Metal Head Den</title>
+    <style>
+        :root {
+            --bg-primary: #0f1115;
+            --bg-secondary: #181b22;
+            --bg-tertiary: #222632;
+            --accent: #ff3366;
+            --accent-hover: #ff5c85;
+            --text-main: #f0f2f5;
+            --text-muted: #9aa0a6;
+            --border: #2e3342;
+            --apple-color: #fa243c;
+            --spotify-color: #1db954;
+            --yt-color: #ff0000;
+            --amazon-color: #00a8e1;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background-color: var(--bg-primary); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; }
+
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background: rgba(24, 27, 34, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+            padding: 12px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header-top h1 {
+            font-size: 1.15rem;
+            color: var(--accent);
+            font-weight: 700;
+            letter-spacing: 0.4px;
+        }
+        .badge {
+            font-size: 0.72rem;
+            background: var(--bg-tertiary);
+            color: var(--text-muted);
+            padding: 4px 10px;
+            border-radius: 99px;
+            border: 1px solid var(--border);
+        }
+
+        .controls-bar {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .provider-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .provider-row label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            white-space: nowrap;
+            font-weight: 600;
+        }
+        select, input[type="search"] {
+            width: 100%;
+            background: var(--bg-primary);
+            color: var(--text-main);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 10px 12px;
+            font-size: 0.9rem;
+            outline: none;
+        }
+        select:focus, input[type="search"]:focus {
+            border-color: var(--accent);
+        }
+
+        .nav-bar {
+            display: none;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 16px;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 118px;
+            z-index: 40;
+        }
+        .nav-bar.visible { display: flex; }
+        .back-btn {
+            background: var(--bg-tertiary);
+            color: var(--text-main);
+            border: 1px solid var(--border);
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+        .back-btn:active { background: var(--accent); border-color: var(--accent); }
+        .active-pl-name {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-main);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        main {
+            flex: 1;
+            padding: 12px 16px 90px 16px;
+            max-width: 900px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .status-box {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-top: 20px;
+        }
+        .status-box.error {
+            border-color: var(--accent);
+            color: #ff8fa3;
+        }
+
+        .playlist-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .playlist-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: border-color 0.15s, background 0.15s;
+        }
+        .playlist-card:active {
+            background: var(--bg-tertiary);
+            border-color: var(--accent);
+        }
+        .pl-title {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-main);
+            line-height: 1.3;
+        }
+        .pl-meta {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            margin-top: 3px;
+        }
+        .pl-count {
+            background: var(--bg-tertiary);
+            color: var(--accent);
+            font-weight: 700;
+            font-size: 0.8rem;
+            padding: 5px 10px;
+            border-radius: 99px;
+            flex-shrink: 0;
+        }
+
+        .track-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .track-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 12px 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+        }
+        .track-card.last-played {
+            border-color: var(--accent);
+            background: rgba(255, 51, 102, 0.08);
+        }
+        .track-info {
+            min-width: 0;
+            flex: 1;
+        }
+        .track-num {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            margin-right: 6px;
+        }
+        .track-title {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-main);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .track-artist {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 3px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .launch-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            text-decoration: none;
+            color: #fff;
+            background: var(--accent);
+            flex-shrink: 0;
+            border: none;
+            cursor: pointer;
+        }
+        .launch-btn.apple { background: var(--apple-color); }
+        .launch-btn.spotify { background: var(--spotify-color); color: #0b140e; }
+        .launch-btn.youtube { background: var(--yt-color); }
+        .launch-btn.amazon { background: var(--amazon-color); color: #06141a; }
+        .launch-btn:active { opacity: 0.85; transform: scale(0.98); }
+
+        @media (min-width: 768px) {
+            .controls-bar { flex-direction: row; }
+            .provider-row { width: 320px; flex-shrink: 0; }
+            .nav-bar { top: 76px; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-top">
+            <h1>Metal Head Den</h1>
+            <span class="badge" id="library-badge">Loading...</span>
+        </div>
+        <div class="controls-bar">
+            <div class="provider-row">
+                <label for="provider-select">Open In:</label>
+                <select id="provider-select">
+                    <option value="apple">Apple Music App (India)</option>
+                    <option value="spotify">Spotify App</option>
+                    <option value="amazon">Amazon Music App (India)</option>
+                    <option value="youtube">YouTube Music App</option>
+                </select>
+            </div>
+            <input type="search" id="search-input" placeholder="Filter playlists or search all tracks...">
+        </div>
+    </header>
+
+    <div class="nav-bar" id="nav-bar">
+        <button class="back-btn" id="back-btn">← All Playlists</button>
+        <div class="active-pl-name" id="active-pl-name">Playlist</div>
+    </div>
+
+    <main id="main-content">
+        <div class="status-box" id="status-box">Loading playlists.json...</div>
+    </main>
+
+    <script>
+        let allPlaylists = [];
+        let activePlaylist = null;
+        let lastPlayedId = localStorage.getItem('mhd_last_track') || '';
+        const isAndroid = /Android/i.test(navigator.userAgent);
+
+        const providerSelect = document.getElementById('provider-select');
+        const searchInput = document.getElementById('search-input');
+        const mainContent = document.getElementById('main-content');
+        const navBar = document.getElementById('nav-bar');
+        const activePlName = document.getElementById('active-pl-name');
+        const backBtn = document.getElementById('back-btn');
+        const libraryBadge = document.getElementById('library-badge');
+
+        const savedProvider = localStorage.getItem('mhd_provider');
+        if (savedProvider) {
+            providerSelect.value = savedProvider;
+        }
+
+        providerSelect.addEventListener('change', () => {
+            localStorage.setItem('mhd_provider', providerSelect.value);
+            renderCurrentView();
+        });
+
+        searchInput.addEventListener('input', () => {
+            renderCurrentView();
+        });
+
+        backBtn.addEventListener('click', () => {
+            activePlaylist = null;
+            searchInput.value = '';
+            navBar.classList.remove('visible');
+            renderCurrentView();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        function buildTrackLink(track, provider) {
+            const artist = (track.artist && track.artist !== 'nan') ? track.artist.trim() : '';
+            const title = (track.title || '').trim();
+            const query = `${artist} ${title}`.trim();
+            const encoded = encodeURIComponent(query);
+
+            if (provider === 'apple') {
+                const webUrl = (track.sources && track.sources.apple_music)
+                    ? track.sources.apple_music
+                    : `https://music.apple.com/in/search?term=${encoded}`;
+                if (isAndroid) {
+                    const cleanPath = webUrl.replace(/^https?:\/\//, '');
+                    return `intent://${cleanPath}#Intent;scheme=https;package=com.apple.android.music;S.browser_fallback_url=${encodeURIComponent(webUrl)};end`;
+                }
+                return webUrl;
+            } else if (provider === 'spotify') {
+                const webUrl = (track.sources && track.sources.spotify)
+                    ? track.sources.spotify
+                    : `https://open.spotify.com/search/${encoded}`;
+                if (isAndroid) {
+                    return `intent://search/${encoded}#Intent;scheme=spotify;package=com.spotify.music;S.browser_fallback_url=${encodeURIComponent(webUrl)};end`;
+                }
+                return `spotify:search:${encoded}`;
+            } else if (provider === 'amazon') {
+                const webUrl = (track.sources && track.sources.amazon_music)
+                    ? track.sources.amazon_music
+                    : `https://music.amazon.in/search/${encoded}`;
+                if (isAndroid) {
+                    const cleanPath = webUrl.replace(/^https?:\/\//, '');
+                    return `intent://${cleanPath}#Intent;scheme=https;package=com.amazon.mp3;S.browser_fallback_url=${encodeURIComponent(webUrl)};end`;
+                }
+                return webUrl;
+            } else {
+                const webUrl = (track.sources && track.sources.youtube)
+                    ? track.sources.youtube
+                    : `https://music.youtube.com/search?q=${encoded}`;
+                if (isAndroid) {
+                    const cleanPath = webUrl.replace(/^https?:\/\//, '');
+                    return `intent://${cleanPath}#Intent;scheme=https;package=com.google.android.apps.youtube.music;S.browser_fallback_url=${encodeURIComponent(webUrl)};end`;
+                }
+                return webUrl;
+            }
+        }
+
+        function getProviderLabel(provider) {
+            if (provider === 'apple') return 'Apple Music';
+            if (provider === 'spotify') return 'Spotify';
+            if (provider === 'amazon') return 'Amazon Music';
+            return 'YT Music';
+        }
+
+        function escapeHtml(str) {
+            return String(str || '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        }
+
+        function renderPlaylistList(filterText) {
+            navBar.classList.remove('visible');
+            const q = filterText.toLowerCase().trim();
+
+            if (q.length >= 3) {
+                const matchedTracks = [];
+                for (const pl of allPlaylists) {
+                    for (const trk of (pl.tracks || [])) {
+                        const hay = `${trk.title || ''} ${trk.artist || ''} ${trk.album || ''}`.toLowerCase();
+                        if (hay.includes(q)) {
+                            matchedTracks.push({ track: trk, playlistName: pl.name });
+                            if (matchedTracks.length >= 100) break;
+                        }
+                    }
+                    if (matchedTracks.length >= 100) break;
+                }
+
+                if (matchedTracks.length === 0) {
+                    mainContent.innerHTML = `<div class="status-box">No tracks found matching "${escapeHtml(filterText)}".</div>`;
+                    return;
+                }
+
+                const provider = providerSelect.value;
+                const btnLabel = getProviderLabel(provider);
+                const listDiv = document.createElement('div');
+                listDiv.className = 'track-list';
+
+                matchedTracks.forEach((item, idx) => {
+                    const trk = item.track;
+                    const trackId = trk.id || `${item.playlistName}_${idx}`;
+                    const url = buildTrackLink(trk, provider);
+                    const card = document.createElement('div');
+                    card.className = `track-card ${lastPlayedId === trackId ? 'last-played' : ''}`;
+                    card.innerHTML = `
+                        <div class="track-info">
+                            <div class="track-title">${escapeHtml(trk.title)}</div>
+                            <div class="track-artist">${escapeHtml(trk.artist)} • <em>${escapeHtml(item.playlistName)}</em></div>
+                        </div>
+                        <a class="launch-btn ${provider}" href="${url}" data-id="${escapeHtml(trackId)}">
+                            ▶ ${btnLabel}
+                        </a>
+                    `;
+                    card.querySelector('a').addEventListener('click', () => {
+                        lastPlayedId = trackId;
+                        localStorage.setItem('mhd_last_track', trackId);
+                    });
+                    listDiv.appendChild(card);
+                });
+
+                mainContent.innerHTML = '';
+                mainContent.appendChild(listDiv);
+                return;
+            }
+
+            const filtered = allPlaylists.filter(pl => pl.name.toLowerCase().includes(q));
+            if (filtered.length === 0) {
+                mainContent.innerHTML = `<div class="status-box">No playlists found matching "${escapeHtml(filterText)}".</div>`;
+                return;
+            }
+
+            const grid = document.createElement('div');
+            grid.className = 'playlist-grid';
+
+            filtered.forEach(pl => {
+                const count = (pl.tracks || []).length;
+                const card = document.createElement('div');
+                card.className = 'playlist-card';
+                card.innerHTML = `
+                    <div>
+                        <div class="pl-title">${escapeHtml(pl.name)}</div>
+                        <div class="pl-meta">Tap to view tracks</div>
+                    </div>
+                    <div class="pl-count">${count}</div>
+                `;
+                card.addEventListener('click', () => {
+                    activePlaylist = pl;
+                    searchInput.value = '';
+                    renderCurrentView();
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                });
+                grid.appendChild(card);
+            });
+
+            mainContent.innerHTML = '';
+            mainContent.appendChild(grid);
+        }
+
+        function renderPlaylistTracks(playlist, filterText) {
+            navBar.classList.add('visible');
+            const tracks = playlist.tracks || [];
+            activePlName.textContent = `${playlist.name} (${tracks.length})`;
+
+            const q = filterText.toLowerCase().trim();
+            const filteredTracks = q
+                ? tracks.filter(t => `${t.title || ''} ${t.artist || ''} ${t.album || ''}`.toLowerCase().includes(q))
+                : tracks;
+
+            if (filteredTracks.length === 0) {
+                mainContent.innerHTML = `<div class="status-box">No matching tracks in this playlist.</div>`;
+                return;
+            }
+
+            const provider = providerSelect.value;
+            const btnLabel = getProviderLabel(provider);
+            const listDiv = document.createElement('div');
+            listDiv.className = 'track-list';
+
+            filteredTracks.forEach((trk, idx) => {
+                const trackId = trk.id || `${playlist.name}_${idx}`;
+                const url = buildTrackLink(trk, provider);
+                const card = document.createElement('div');
+                card.className = `track-card ${lastPlayedId === trackId ? 'last-played' : ''}`;
+                card.innerHTML = `
+                    <div class="track-info">
+                        <div class="track-title"><span class="track-num">${idx + 1}.</span>${escapeHtml(trk.title)}</div>
+                        <div class="track-artist">${escapeHtml(trk.artist)}${trk.album ? ' — ' + escapeHtml(trk.album) : ''}</div>
+                    </div>
+                    <a class="launch-btn ${provider}" href="${url}" data-id="${escapeHtml(trackId)}">
+                        ▶ ${btnLabel}
+                    </a>
+                `;
+                card.querySelector('a').addEventListener('click', () => {
+                    lastPlayedId = trackId;
+                    localStorage.setItem('mhd_last_track', trackId);
+                    document.querySelectorAll('.track-card').forEach(c => c.classList.remove('last-played'));
+                    card.classList.add('last-played');
+                });
+                listDiv.appendChild(card);
+            });
+
+            mainContent.innerHTML = '';
+            mainContent.appendChild(listDiv);
+        }
+
+        function renderCurrentView() {
+            const filterText = searchInput.value;
+            if (activePlaylist) {
+                renderPlaylistTracks(activePlaylist, filterText);
+            } else {
+                renderPlaylistList(filterText);
+            }
+        }
+
+        async function initApp() {
+            try {
+                const response = await fetch('./playlists.json', { cache: 'no-cache' });
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status} (${response.statusText})`);
+                }
+                const data = await response.json();
+                if (!data || !Array.isArray(data.playlists)) {
+                    throw new Error('Invalid playlists.json structure.');
+                }
+
+                allPlaylists = data.playlists.sort((a, b) =>
+                    a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' })
+                );
+
+                const totalTracks = allPlaylists.reduce((sum, pl) => sum + ((pl.tracks || []).length), 0);
+                libraryBadge.textContent = `${allPlaylists.length} Playlists • ${totalTracks} Tracks`;
+                renderCurrentView();
+            } catch (err) {
+                libraryBadge.textContent = 'Load Error';
+                mainContent.innerHTML = `
+                    <div class="status-box error">
+                        <strong>Could not load playlists.json</strong><br><br>
+                        Make sure <code>playlists.json</code> is uploaded in the exact same GitHub repository folder as <code>index.html</code>.<br><br>
+                        <small>Technical detail: ${escapeHtml(err.message)}</small>
+                    </div>
+                `;
+            }
+        }
+
+        initApp();
+    </script>
+</body>
+</html>

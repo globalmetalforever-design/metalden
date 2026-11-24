@@ -1,0 +1,48 @@
+{
+  "version": "1.0",
+  "curator": "Balaji K S",
+  "playlists": [
+    {
+      "name": "( Vol.1 ) POWER METAL 2023",
+      "track_count": 3,
+      "tracks": [
+        {
+          "id": "1",
+          "title": "Fireflies of Doom",
+          "artist": "Angus McSix",
+          "album": "Sword of Power"
+        },
+        {
+          "id": "2",
+          "title": "The Siren",
+          "artist": "Marc Hudson",
+          "album": "The Siren"
+        },
+        {
+          "id": "3",
+          "title": "Raise Your Hammer",
+          "artist": "All For Metal",
+          "album": "Raise Your Hammer"
+        }
+      ]
+    },
+    {
+      "name": "2000s Metal & Hard Rock",
+      "track_count": 2,
+      "tracks": [
+        {
+          "id": "4",
+          "title": "Sonne",
+          "artist": "Rammstein",
+          "album": "Made In Germany"
+        },
+        {
+          "id": "5",
+          "title": "Lateralus",
+          "artist": "TOOL",
+          "album": "Lateralus"
+        }
+      ]
+    }
+  ]
+}
