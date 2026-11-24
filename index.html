@@ -17,8 +17,6 @@
             --text-main: #f0f2f5;
             --text-muted: #9aa0a6;
             --border: #2e3342;
-            --apple-color: #fa243c;
-            --spotify-color: #1db954;
             --yt-color: #ff0000;
             --amazon-color: #00a8e1;
         }
@@ -246,8 +244,6 @@
             border: none;
             cursor: pointer;
         }
-        .launch-btn.apple { background: var(--apple-color); }
-        .launch-btn.spotify { background: var(--spotify-color); color: #0b140e; }
         .launch-btn.youtube { background: var(--yt-color); }
         .launch-btn.amazon { background: var(--amazon-color); color: #06141a; }
         .launch-btn:active { opacity: 0.85; transform: scale(0.98); }
@@ -270,10 +266,8 @@
             <div class="provider-row">
                 <label for="provider-select">Open In:</label>
                 <select id="provider-select">
-                    <option value="apple">Apple Music App (India)</option>
-                    <option value="spotify">Spotify App</option>
-                    <option value="amazon">Amazon Music App (India)</option>
                     <option value="youtube">YouTube Music App</option>
+                    <option value="amazon">Amazon Music HD (India)</option>
                 </select>
             </div>
             <input type="search" id="search-input" placeholder="Filter playlists or search all tracks...">
@@ -304,7 +298,7 @@
         const libraryBadge = document.getElementById('library-badge');
 
         const savedProvider = localStorage.getItem('mhd_provider');
-        if (savedProvider) {
+        if (savedProvider && (savedProvider === 'youtube' || savedProvider === 'amazon')) {
             providerSelect.value = savedProvider;
         }
 
@@ -331,24 +325,7 @@
             const query = `${artist} ${title}`.trim();
             const encoded = encodeURIComponent(query);
 
-            if (provider === 'apple') {
-                const webUrl = (track.sources && track.sources.apple_music)
-                    ? track.sources.apple_music
-                    : `https://music.apple.com/in/search?term=${encoded}`;
-                if (isAndroid) {
-                    const cleanPath = webUrl.replace(/^https?:\/\//, '');
-                    return `intent://${cleanPath}#Intent;scheme=https;package=com.apple.android.music;S.browser_fallback_url=${encodeURIComponent(webUrl)};end`;
-                }
-                return webUrl;
-            } else if (provider === 'spotify') {
-                const webUrl = (track.sources && track.sources.spotify)
-                    ? track.sources.spotify
-                    : `https://open.spotify.com/search/${encoded}`;
-                if (isAndroid) {
-                    return `intent://search/${encoded}#Intent;scheme=spotify;package=com.spotify.music;S.browser_fallback_url=${encodeURIComponent(webUrl)};end`;
-                }
-                return `spotify:search:${encoded}`;
-            } else if (provider === 'amazon') {
+            if (provider === 'amazon') {
                 const webUrl = (track.sources && track.sources.amazon_music)
                     ? track.sources.amazon_music
                     : `https://music.amazon.in/search/${encoded}`;
@@ -358,9 +335,17 @@
                 }
                 return webUrl;
             } else {
-                const webUrl = (track.sources && track.sources.youtube)
-                    ? track.sources.youtube
-                    : `https://music.youtube.com/search?q=${encoded}`;
+                // Use direct YouTube Music watch URL if video ID or URL exists in playlists.json
+                let webUrl = '';
+                if (track.sources && track.sources.youtube) {
+                    webUrl = track.sources.youtube.replace('www.youtube.com', 'music.youtube.com');
+                } else if (track.youtube_id || track.video_id) {
+                    const vid = track.youtube_id || track.video_id;
+                    webUrl = `https://music.youtube.com/watch?v=${encodeURIComponent(vid)}`;
+                } else {
+                    webUrl = `https://music.youtube.com/search?q=${encoded}`;
+                }
+
                 if (isAndroid) {
                     const cleanPath = webUrl.replace(/^https?:\/\//, '');
                     return `intent://${cleanPath}#Intent;scheme=https;package=com.google.android.apps.youtube.music;S.browser_fallback_url=${encodeURIComponent(webUrl)};end`;
@@ -370,10 +355,7 @@
         }
 
         function getProviderLabel(provider) {
-            if (provider === 'apple') return 'Apple Music';
-            if (provider === 'spotify') return 'Spotify';
-            if (provider === 'amazon') return 'Amazon Music';
-            return 'YT Music';
+            return provider === 'amazon' ? 'Amazon HD' : 'YT Music';
         }
 
         function escapeHtml(str) {

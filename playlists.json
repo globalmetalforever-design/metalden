@@ -10,19 +10,28 @@
           "id": "1",
           "title": "Fireflies of Doom",
           "artist": "Angus McSix",
-          "album": "Sword of Power"
+          "album": "Sword of Power",
+          "sources": {
+            "apple_music": "https://music.apple.com/in/album/fireflies-of-doom/1692185576?i=1692186708&uo=4"
+          }
         },
         {
           "id": "2",
           "title": "The Siren",
           "artist": "Marc Hudson",
-          "album": "The Siren"
+          "album": "The Siren",
+          "sources": {
+            "apple_music": "https://music.apple.com/in/album/the-siren/1691140027?i=1691140381&uo=4"
+          }
         },
         {
           "id": "3",
           "title": "Raise Your Hammer",
           "artist": "All For Metal",
-          "album": "Raise Your Hammer"
+          "album": "Raise Your Hammer",
+          "sources": {
+            "apple_music": "https://music.apple.com/in/album/raise-your-hammer/1672615413?i=1672615758&uo=4"
+          }
         }
       ]
     },
@@ -34,13 +43,19 @@
           "id": "4",
           "title": "Sonne",
           "artist": "Rammstein",
-          "album": "Made In Germany"
+          "album": "Made In Germany",
+          "sources": {
+            "apple_music": "https://music.apple.com/in/album/sonne/1440770702?i=1440771250&uo=4"
+          }
         },
         {
           "id": "5",
           "title": "Lateralus",
           "artist": "TOOL",
-          "album": "Lateralus"
+          "album": "Lateralus",
+          "sources": {
+            "apple_music": "https://music.apple.com/in/album/lateralus/1474185412?i=1474185845&uo=4"
+          }
         }
       ]
     }
